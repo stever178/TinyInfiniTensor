@@ -38,7 +38,7 @@ namespace infini
             output_dim[i] = input_dim[transposePermute[i]];
         }
 
-        return {output_dim};
+        return vector<Shape>{output_dim};
     }
 
     std::string TransposeObj::toString() const

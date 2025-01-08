@@ -39,7 +39,26 @@ namespace infini
         // TODO：返回经过 clip 操作后的 shape
         // REF: https://onnx.ai/onnx/operators/onnx__Clip.html#clip-13
         // =================================== 作业 ===================================
-        return std::nullopt;
+        const auto A = inputs[0];
+        auto input_dim = A->getDims();
+        auto output_dim = input_dim;
+        int rank = A->getRank();
+
+        auto min = ClipObj::getMin();
+        auto max = ClipObj::getMax();
+        for (int i = 0; i < rank; ++i) {
+            if (min.has_value() && max.has_value()) {
+                output_dim[i] = std::fmin(std::fmax(input_dim[i], min.value()), max.value());
+            } else if (min.has_value()) {
+                output_dim[i] = std::fmax(input_dim[i], min.value());
+            } else if (max.has_value()) {
+                output_dim[i] = std::fmin(input_dim[i], max.value());
+            } else {
+                output_dim[i] = input_dim[i];
+            }
+        }
+
+        return vector<Shape>{output_dim};
     }
 
     std::string ClipObj::toString() const
