@@ -48,7 +48,7 @@ namespace infini
         auto max = ClipObj::getMax();
         for (int i = 0; i < rank; ++i) {
             if (min.has_value() && max.has_value()) {
-                output_dim[i] = std::fmin(std::fmax(input_dim[i], min.value()), max.value());
+                output_dim[i] = std::fmin(max.value(), std::fmax(input_dim[i], min.value()));
             } else if (min.has_value()) {
                 output_dim[i] = std::fmax(input_dim[i], min.value());
             } else if (max.has_value()) {
@@ -85,7 +85,73 @@ namespace infini
         // REF_FILE: src/core/operator.cc
         // REF: https://onnx.ai/onnx/operators/onnx__Cast.html#cast-21
         // =================================== 作业 ===================================
-        return {};
+        const auto A = inputs[0];
+        // auto input_type = A->getDType();
+        switch (this->getType())
+        {
+        case CastType::Float2Float16:
+          return vector<DataType>{DataType::Float16};
+        case CastType::Float2Int64:
+          return vector<DataType>{DataType::Int64};
+        case CastType::Float2Int32:
+          return vector<DataType>{DataType::Int32};
+        case CastType::Float2Int16:
+          return vector<DataType>{DataType::Int16};
+        case CastType::Float2Int8:
+          return vector<DataType>{DataType::Int8};
+        case CastType::Float2BFloat16:
+          return vector<DataType>{DataType::BFloat16};
+
+        case CastType::Int322Float:
+          return vector<DataType>{DataType::Float32};
+        case CastType::Int322Int8:
+          return vector<DataType>{DataType::Int8};
+        case CastType::Int322Int16:
+          return vector<DataType>{DataType::Int16};
+        case CastType::Int322Int64:
+          return vector<DataType>{DataType::Int64};
+
+        case CastType::Int162Float:
+          return vector<DataType>{DataType::Float32};
+        case CastType::Int162Int32:
+          return vector<DataType>{DataType::Int32};
+
+        case CastType::Int82Float:
+          return vector<DataType>{DataType::Float32};
+        case CastType::Int82Int16:
+          return vector<DataType>{DataType::Int16};
+        case CastType::Int82Int32:
+          return vector<DataType>{DataType::Int32};
+
+        case CastType::Uint82Float:
+          return vector<DataType>{DataType::Float32};
+        case CastType::Uint82Int32:
+          return vector<DataType>{DataType::Int32};
+        case CastType::Uint82Int64:
+          return vector<DataType>{DataType::Int64};
+
+        case CastType::Int642Int32:
+          return vector<DataType>{DataType::Int32};
+        case CastType::Int642Uint32:
+          return vector<DataType>{DataType::UInt32};
+        case CastType::Int642Float:
+          return vector<DataType>{DataType::Float32};
+
+        case CastType::Uint322Int64:
+          return vector<DataType>{DataType::Int64};
+
+        case CastType::Float162Float:
+          return vector<DataType>{DataType::Float32};
+
+        case CastType::BFloat162Float:
+          return vector<DataType>{DataType::Float32};
+
+        case CastType::Float2Float:
+          return vector<DataType>{DataType::Float32};
+
+        default:
+          IT_TODO_HALT();
+        }
     }
 
     optional<vector<Shape>> CastObj::inferShape(const TensorVec &inputs)
@@ -94,7 +160,13 @@ namespace infini
         // TODO：返回经过 cast 操作后的 shape
         // REF: https://onnx.ai/onnx/operators/onnx__Cast.html#cast-21
         // =================================== 作业 ===================================
-        return std::nullopt;
+        const auto A = inputs[0];
+        auto input_dim = A->getDims();
+        auto output_dim = input_dim;
+        // int rank = A->getRank();
+
+        // return std::nullopt;
+        return vector<Shape>{output_dim};
     }
 
     std::string CastObj::toString() const

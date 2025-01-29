@@ -32,8 +32,28 @@ namespace infini
         // =================================== 作业 ===================================
         // TODO: 设计一个算法来分配内存，返回起始地址偏移量
         // =================================== 作业 ===================================
+        this->used += size;
+        this->peak = std::max(this->peak, this->used);
 
-        return 0;
+        size_t result_offset = 0;
+        if (this->addrBlocks.size() != 0)
+        {
+            auto it = this->addrBlocks.begin();
+            size_t pre_end = it->first + it->second;
+            for (it ++; it != this->addrBlocks.end(); it++)
+            {
+                if (pre_end + size <= it->first)
+                {
+                    break;
+                }
+                pre_end = it->first + it->second;
+            }
+            result_offset = pre_end;
+        }
+
+        // C++ 标准库中的 std::map 默认是按照 key 来排序的
+        this->addrBlocks[result_offset] = size;
+        return result_offset;
     }
 
     void Allocator::free(size_t addr, size_t size)
@@ -44,6 +64,8 @@ namespace infini
         // =================================== 作业 ===================================
         // TODO: 设计一个算法来回收内存
         // =================================== 作业 ===================================
+        this->used -= size;
+        this->addrBlocks.erase(addr);
     }
 
     void *Allocator::getPtr()
