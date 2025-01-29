@@ -26,7 +26,7 @@ namespace infini
         g->print();
         g->optimize();
         // 优化后
-        // g->print();
+        g->print();
         EXPECT_EQ(g->getOperators().size(), 1);
         EXPECT_EQ(g->getTensors().size(), 3);
         EXPECT_EQ(g->getOperators()[0]->getOpType().underlying(), 7);
